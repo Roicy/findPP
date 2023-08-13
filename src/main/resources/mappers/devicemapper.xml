@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--<beans xmlns="http://www.springframework.org/schema/beans"-->
+<!--       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"-->
+<!--       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">-->
+
+<!--</beans>-->
+<mapper namespace="com.example.myfirstspringbootweb.DAO.DeviceMapper">
+
+<select id="findAll" resultType="com.example.myfirstspringbootweb.entity.Device">
+    select * from device
+</select>
+    <select id="getAllByuserid" resultType="com.example.myfirstspringbootweb.entity.Device">
+
+        SELECT *
+        from device
+        where is_deleted = 0
+        <if test="userid != null">
+            and userid = #{userid}
+        </if>
+        limit #{startIndex},#{pagesize}
+    </select>
+
+<!--    <bean id="myBean" class="com.example.MyBean" />-->
+
+</mapper>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+  <title>查询设备</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJW4jsPlNKgv6jFm3B5Edp5ywgdqLWdmc&callback=initMap"></script>
+  <script>
+    function queryDevices() {
+      var username = document.getElementById("username").value;
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+          var devices = JSON.parse(this.responseText);
+          var table = document.getElementById("devices");
+          table.innerHTML = "";
+          for (var i = 0; i < devices.length; i++) {
+            var row = table.insertRow(-1);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            cell1.innerHTML = devices[i].name;
+            cell2.innerHTML = devices[i].type;
+          }
+        }
+      };
+      xhr.open("GET", "http://localhost:8080/deviceslist/" + username, true);
+    }
+    function initMap() {
+      var mapOptions = {
+        zoom: 10,
+        center: new google.maps.LatLng(30.3200, 103.5300)
+      };
+      var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+          var devices = JSON.parse(this.responseText);
+          for (var i = 0; i < devices.length; i++) {
+            var device = devices[i];
+            var latlng = new google.maps.LatLng(device.latitude, device.longitude);
+            var marker = new google.maps.Marker({
+              position: latlng,
+              map: map,
+              title: device.name,
+              icon: getIcon(device.type) // 根据设备类型获取不同颜色的图标
+            });
+          }
+        }
+      };
+      // 向服务器发送请求，获取设备位置信息
+      xhr.open("GET", "http://127.0.0.1:8000/deviceList/", true);
+      xhr.send();
+    }
+
+    function getIcon(type) {
+      switch (type) {
+        case "phone":
+          return "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+        case "tablet":
+          return "http://maps.google.com/mapfiles/ms/icons/green-dot.png";
+        case "laptop":
+          return "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+        default:
+          return "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+      }
+    }
+
+  </script>
+
+</head>
+<body>
+
+<label for="username">用户名:</label>
+<input type="text" id="username">
+<button onclick="queryDevices()">查询</button>
+
+<table id="devices">
+  <tr>
+    <th>设备名称</th>
+    <th>设备类型</th>
+  </tr>
+</table>
+<div id="map" style="width: 50%; height: 100%; float: right;"></div>
+
+</body>
+</html>
